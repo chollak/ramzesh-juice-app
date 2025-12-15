@@ -14,6 +14,43 @@
     </header>
 
     <div class="px-4 space-y-4">
+      <!-- Информация о пользователе -->
+      <div class="bg-tg-secondary-bg rounded-2xl p-5">
+        <h2 class="font-bold text-tg-text mb-3 text-sm uppercase tracking-wide opacity-70">Контактные данные</h2>
+
+        <div v-if="userContact.phone_number" class="space-y-2">
+          <div class="flex items-center gap-2 text-tg-text">
+            <svg class="w-5 h-5 text-tg-button" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span>{{ userContact.first_name }} {{ userContact.last_name }}</span>
+          </div>
+          <div class="flex items-center gap-2 text-tg-text">
+            <svg class="w-5 h-5 text-tg-button" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            <span>{{ userContact.phone_number }}</span>
+          </div>
+        </div>
+
+        <button
+          v-else
+          @click="requestUserContact"
+          :disabled="requestingContact"
+          class="w-full btn-primary py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          <svg v-if="!requestingContact" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+          <div v-else class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          <span>{{ requestingContact ? 'Ожидание...' : 'Поделиться контактом' }}</span>
+        </button>
+
+        <p v-if="!userContact.phone_number" class="text-xs text-tg-hint mt-2 text-center">
+          Для оформления заказа нам нужен ваш номер телефона для связи
+        </p>
+      </div>
+
       <!-- Информация о заказе -->
       <div class="bg-tg-secondary-bg rounded-2xl p-5">
         <h2 class="font-bold text-tg-text mb-3 text-sm uppercase tracking-wide opacity-70">Комментарий к заказу</h2>
@@ -70,7 +107,7 @@
       <!-- Кнопка подтверждения -->
       <button
         @click="submitOrder"
-        :disabled="submitting"
+        :disabled="submitting || !userContact.phone_number"
         class="w-full btn-primary text-lg py-4 rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span v-if="submitting" class="flex items-center justify-center gap-2">
@@ -79,6 +116,10 @@
         </span>
         <span v-else>Подтвердить заказ</span>
       </button>
+
+      <p v-if="!userContact.phone_number" class="text-xs text-tg-hint text-center -mt-2">
+        Сначала поделитесь контактом выше ☝️
+      </p>
     </div>
   </div>
 </template>
@@ -89,7 +130,7 @@ import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useAppStore } from '@/stores/app'
 import { api } from '@/utils/supabase'
-import { formatPrice, hapticFeedback, showAlert, getUserData } from '@/utils/telegram'
+import { formatPrice, hapticFeedback, showAlert, getUserData, requestContact } from '@/utils/telegram'
 
 const router = useRouter()
 const cartStore = useCartStore()
@@ -101,6 +142,13 @@ const form = ref({
 })
 
 const submitting = ref(false)
+const requestingContact = ref(false)
+const userContact = ref({
+  phone_number: null,
+  first_name: null,
+  last_name: null,
+  user_id: null
+})
 
 const cartCount = computed(() => cartStore.cartCount)
 const cartTotal = computed(() => cartStore.cartTotal)
@@ -108,6 +156,18 @@ const cartTotal = computed(() => cartStore.cartTotal)
 onMounted(() => {
   if (cartStore.isEmpty) {
     router.push('/')
+    return
+  }
+
+  // Пытаемся получить данные пользователя из Telegram
+  const telegramUser = getUserData()
+  if (telegramUser) {
+    userContact.value = {
+      phone_number: telegramUser.phone_number,
+      first_name: telegramUser.first_name,
+      last_name: telegramUser.last_name,
+      user_id: telegramUser.id
+    }
   }
 })
 
@@ -116,8 +176,45 @@ const goBack = () => {
   router.back()
 }
 
+const requestUserContact = async () => {
+  if (requestingContact.value) return
+
+  try {
+    requestingContact.value = true
+    hapticFeedback('light')
+
+    const contact = await requestContact()
+    console.log('Contact received:', contact)
+
+    userContact.value = {
+      phone_number: contact.phone_number,
+      first_name: contact.first_name || userContact.value.first_name,
+      last_name: contact.last_name || userContact.value.last_name,
+      user_id: contact.user_id || userContact.value.user_id
+    }
+
+    hapticFeedback('success')
+  } catch (error) {
+    console.error('Error requesting contact:', error)
+    hapticFeedback('error')
+
+    if (!error.message?.includes('отменен')) {
+      showAlert('Не удалось получить контакт. Попробуйте еще раз.')
+    }
+  } finally {
+    requestingContact.value = false
+  }
+}
+
 const submitOrder = async () => {
   if (submitting.value) return
+
+  // Проверяем наличие контактных данных
+  if (!userContact.value.phone_number) {
+    hapticFeedback('error')
+    showAlert('Пожалуйста, поделитесь своим контактом для оформления заказа')
+    return
+  }
 
   try {
     submitting.value = true
@@ -126,18 +223,19 @@ const submitOrder = async () => {
     // Получаем данные пользователя из Telegram
     const telegramUser = getUserData()
     console.log('Telegram user data:', telegramUser)
+    console.log('User contact data:', userContact.value)
 
     if (!telegramUser || !telegramUser.id) {
       throw new Error('Пожалуйста, откройте приложение через Telegram бота для оформления заказа')
     }
 
-    // Создаем заказ с telegram_id
+    // Создаем заказ с telegram_id и контактными данными
     const orderData = {
       telegram_user_id: telegramUser.id,
       telegram_username: telegramUser.username || null,
-      user_first_name: telegramUser.first_name || null,
-      user_last_name: telegramUser.last_name || null,
-      phone_number: telegramUser.phone_number || null,
+      user_first_name: userContact.value.first_name || telegramUser.first_name || null,
+      user_last_name: userContact.value.last_name || telegramUser.last_name || null,
+      phone_number: userContact.value.phone_number,
       total_amount: cartTotal.value,
       comment: form.value.comment || null,
       payment_method: form.value.paymentMethod,

@@ -109,18 +109,33 @@ export const getUserData = () => {
 }
 
 // Запросить номер телефона пользователя
-export const requestContact = (callback) => {
-  if (!tg) {
-    callback(null)
-    return
-  }
-
-  tg.requestContact((success, event) => {
-    if (success && event?.responseUnsafe?.contact) {
-      callback(event.responseUnsafe.contact.phone_number)
-    } else {
-      callback(null)
+export const requestContact = () => {
+  return new Promise((resolve, reject) => {
+    if (!tg) {
+      console.warn('Telegram WebApp not available for contact request')
+      reject(new Error('Telegram WebApp недоступен'))
+      return
     }
+
+    console.log('Requesting contact from user...')
+
+    tg.requestContact((success, event) => {
+      console.log('Contact request result:', { success, event })
+
+      if (success && event?.responseUnsafe?.contact) {
+        const contact = event.responseUnsafe.contact
+        console.log('Contact received:', contact)
+        resolve({
+          phone_number: contact.phone_number,
+          first_name: contact.first_name,
+          last_name: contact.last_name,
+          user_id: contact.user_id
+        })
+      } else {
+        console.warn('Contact request was cancelled or failed')
+        reject(new Error('Запрос контакта был отменен'))
+      }
+    })
   })
 }
 

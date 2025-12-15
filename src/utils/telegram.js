@@ -46,14 +46,31 @@ export const applyTelegramTheme = () => {
 
 export const getUserData = () => {
   if (!tg) return null
-  
+
   return {
     id: tg.initDataUnsafe?.user?.id,
     first_name: tg.initDataUnsafe?.user?.first_name,
     last_name: tg.initDataUnsafe?.user?.last_name,
     username: tg.initDataUnsafe?.user?.username,
     language_code: tg.initDataUnsafe?.user?.language_code,
+    phone_number: tg.initDataUnsafe?.user?.phone_number,
   }
+}
+
+// Запросить номер телефона пользователя
+export const requestContact = (callback) => {
+  if (!tg) {
+    callback(null)
+    return
+  }
+
+  tg.requestContact((success, event) => {
+    if (success && event?.responseUnsafe?.contact) {
+      callback(event.responseUnsafe.contact.phone_number)
+    } else {
+      callback(null)
+    }
+  })
 }
 
 export const setMainButton = (text, onClick, show = true) => {

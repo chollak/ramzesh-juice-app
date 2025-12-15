@@ -14,90 +14,17 @@
     </header>
 
     <div class="px-4 space-y-6">
-      <!-- Форма -->
+      <!-- Информация о заказе -->
       <div class="bg-white rounded-2xl p-4 shadow-sm">
-        <h2 class="font-bold text-tg-text mb-4">Контактные данные</h2>
-        
-        <div class="space-y-3">
-          <div>
-            <label class="block text-sm text-tg-hint mb-1">Телефон</label>
-            <input
-              v-model="form.phone"
-              type="tel"
-              placeholder="+998 90 123 45 67"
-              class="input-field"
-              required
-            >
-          </div>
-          
-          <div>
-            <label class="block text-sm text-tg-hint mb-1">Имя</label>
-            <input
-              v-model="form.name"
-              type="text"
-              placeholder="Ваше имя"
-              class="input-field"
-              required
-            >
-          </div>
-        </div>
-      </div>
+        <h2 class="font-bold text-tg-text mb-4">Комментарий к заказу</h2>
 
-      <!-- Адрес доставки -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm">
-        <h2 class="font-bold text-tg-text mb-4">Адрес доставки</h2>
-        
-        <div class="space-y-3">
-          <div>
-            <label class="block text-sm text-tg-hint mb-1">Адрес</label>
-            <input
-              v-model="form.address"
-              type="text"
-              placeholder="Улица, дом"
-              class="input-field"
-              required
-            >
-          </div>
-          
-          <div class="grid grid-cols-3 gap-2">
-            <div>
-              <label class="block text-sm text-tg-hint mb-1">Подъезд</label>
-              <input
-                v-model="form.entrance"
-                type="text"
-                placeholder="1"
-                class="input-field"
-              >
-            </div>
-            <div>
-              <label class="block text-sm text-tg-hint mb-1">Этаж</label>
-              <input
-                v-model="form.floor"
-                type="text"
-                placeholder="5"
-                class="input-field"
-              >
-            </div>
-            <div>
-              <label class="block text-sm text-tg-hint mb-1">Квартира</label>
-              <input
-                v-model="form.apartment"
-                type="text"
-                placeholder="42"
-                class="input-field"
-              >
-            </div>
-          </div>
-          
-          <div>
-            <label class="block text-sm text-tg-hint mb-1">Комментарий</label>
-            <textarea
-              v-model="form.comment"
-              placeholder="Комментарий к заказу"
-              class="input-field resize-none"
-              rows="3"
-            ></textarea>
-          </div>
+        <div>
+          <textarea
+            v-model="form.comment"
+            placeholder="Дополнительные пожелания к заказу (необязательно)"
+            class="input-field resize-none"
+            rows="3"
+          ></textarea>
         </div>
       </div>
 
@@ -143,7 +70,7 @@
       <!-- Кнопка подтверждения -->
       <button
         @click="submitOrder"
-        :disabled="!isFormValid || submitting"
+        :disabled="submitting"
         class="w-full btn-primary text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span v-if="submitting" class="flex items-center justify-center gap-2">
@@ -169,12 +96,6 @@ const cartStore = useCartStore()
 const appStore = useAppStore()
 
 const form = ref({
-  name: '',
-  phone: '',
-  address: '',
-  apartment: '',
-  entrance: '',
-  floor: '',
   comment: '',
   paymentMethod: 'cash'
 })
@@ -184,22 +105,9 @@ const submitting = ref(false)
 const cartCount = computed(() => cartStore.cartCount)
 const cartTotal = computed(() => cartStore.cartTotal)
 
-const isFormValid = computed(() => {
-  return form.value.name && 
-         form.value.phone && 
-         form.value.address
-})
-
 onMounted(() => {
   if (cartStore.isEmpty) {
     router.push('/')
-    return
-  }
-  
-  // Предзаполняем имя из Telegram
-  const telegramUser = getUserData()
-  if (telegramUser) {
-    form.value.name = telegramUser.first_name || ''
   }
 })
 
@@ -209,29 +117,26 @@ const goBack = () => {
 }
 
 const submitOrder = async () => {
-  if (!isFormValid.value || submitting.value) return
+  if (submitting.value) return
 
   try {
     submitting.value = true
     hapticFeedback('medium')
 
-    // Проверяем авторизацию
-    if (!appStore.user || !appStore.user.id) {
-      throw new Error('Пользователь не авторизован')
+    // Получаем данные пользователя из Telegram
+    const telegramUser = getUserData()
+    if (!telegramUser || !telegramUser.id) {
+      throw new Error('Не удалось получить данные пользователя из Telegram')
     }
 
-    // Формируем адрес
-    let fullAddress = form.value.address
-    if (form.value.apartment) fullAddress += `, кв. ${form.value.apartment}`
-    if (form.value.entrance) fullAddress += `, подъезд ${form.value.entrance}`
-    if (form.value.floor) fullAddress += `, этаж ${form.value.floor}`
-
-    // Создаем заказ
+    // Создаем заказ с telegram_id
     const orderData = {
-      user_id: appStore.user.id,
+      telegram_user_id: telegramUser.id,
+      telegram_username: telegramUser.username || null,
+      user_first_name: telegramUser.first_name || null,
+      user_last_name: telegramUser.last_name || null,
+      phone_number: telegramUser.phone_number || null,
       total_amount: cartTotal.value,
-      delivery_address_text: fullAddress,
-      phone_number: form.value.phone,
       comment: form.value.comment || null,
       payment_method: form.value.paymentMethod,
       status: 'pending'

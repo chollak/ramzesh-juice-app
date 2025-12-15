@@ -1,23 +1,32 @@
 // Утилиты для работы с Telegram Mini Apps API
+import { debugLogger } from './debug'
 
 export const tg = window.Telegram?.WebApp
 
 export const initTelegramApp = () => {
-  console.log('Initializing Telegram WebApp...')
-  console.log('window.Telegram:', window.Telegram)
-  console.log('window.Telegram.WebApp:', tg)
+  debugLogger.log('Initializing Telegram WebApp...')
+  debugLogger.log('window.Telegram exists:', !!window.Telegram)
+  debugLogger.log('window.Telegram.WebApp exists:', !!tg)
 
   if (!tg) {
-    console.warn('Telegram WebApp is not available')
-    console.log('Running in browser mode (not in Telegram)')
+    debugLogger.error('Telegram WebApp is not available')
+    debugLogger.log('Running in browser mode (not in Telegram)')
     return null
   }
 
   // Логируем информацию о Telegram WebApp
-  console.log('Telegram WebApp version:', tg.version)
-  console.log('Telegram WebApp platform:', tg.platform)
-  console.log('Telegram initData:', tg.initData)
-  console.log('Telegram initDataUnsafe:', tg.initDataUnsafe)
+  debugLogger.log('Telegram WebApp version:', tg.version)
+  debugLogger.log('Telegram WebApp platform:', tg.platform)
+  debugLogger.log('Telegram initData length:', tg.initData?.length || 0)
+  debugLogger.log('Telegram initDataUnsafe:', {
+    user: tg.initDataUnsafe?.user ? {
+      id: tg.initDataUnsafe.user.id,
+      first_name: tg.initDataUnsafe.user.first_name,
+      username: tg.initDataUnsafe.user.username
+    } : null,
+    query_id: tg.initDataUnsafe?.query_id,
+    auth_date: tg.initDataUnsafe?.auth_date
+  })
 
   // Инициализируем приложение
   tg.ready()
@@ -61,12 +70,14 @@ export const getUserData = () => {
   // Режим разработки: если Telegram WebApp недоступен, используем тестовые данные
   const isDevelopment = import.meta.env.DEV
 
+  debugLogger.log('getUserData called', { isDevelopment })
+
   if (!tg) {
-    console.warn('Telegram WebApp is not available')
+    debugLogger.error('Telegram WebApp is not available in getUserData')
 
     // В режиме разработки возвращаем тестового пользователя
     if (isDevelopment) {
-      console.log('Using development mode test user')
+      debugLogger.log('Using development mode test user')
       return {
         id: 999999999,
         first_name: 'Test',
@@ -77,11 +88,13 @@ export const getUserData = () => {
       }
     }
 
+    debugLogger.error('Returning null - not in Telegram and not in dev mode')
     return null
   }
 
-  // Логируем данные для отладки
-  console.log('Telegram initDataUnsafe:', tg.initDataUnsafe)
+  // Логируем полные данные для отладки
+  debugLogger.log('Telegram initDataUnsafe full:', tg.initDataUnsafe)
+  debugLogger.log('Telegram initData string:', tg.initData)
 
   const userData = {
     id: tg.initDataUnsafe?.user?.id,
@@ -92,19 +105,31 @@ export const getUserData = () => {
     phone_number: tg.initDataUnsafe?.user?.phone_number,
   }
 
-  // Если ID пользователя отсутствует, но мы в режиме разработки
-  if (!userData.id && isDevelopment) {
-    console.warn('User ID not found in Telegram data, using test user')
-    return {
-      id: 999999999,
-      first_name: 'Test',
-      last_name: 'User',
-      username: 'testuser',
-      language_code: 'ru',
-      phone_number: null,
+  debugLogger.log('Extracted user data:', userData)
+
+  // Если ID пользователя отсутствует
+  if (!userData.id) {
+    debugLogger.error('User ID is missing from Telegram data!')
+    debugLogger.log('This might happen if WebApp was opened incorrectly')
+
+    // В режиме разработки используем тестовые данные
+    if (isDevelopment) {
+      debugLogger.log('Using test user due to missing ID in dev mode')
+      return {
+        id: 999999999,
+        first_name: 'Test',
+        last_name: 'User',
+        username: 'testuser',
+        language_code: 'ru',
+        phone_number: null,
+      }
     }
+
+    debugLogger.error('Returning null - user ID missing and not in dev mode')
+    return null
   }
 
+  debugLogger.log('Returning valid user data with ID:', userData.id)
   return userData
 }
 

@@ -42,8 +42,13 @@ bot.command('start', async (ctx) => {
         ])
     }
 
-    const keyboard = Markup.keyboard([
-      [Markup.button.webApp('🍹 Открыть меню', MINI_APP_URL)],
+    // Inline кнопка для WebApp (правильный способ с передачей initData)
+    const inlineKeyboard = Markup.inlineKeyboard([
+      [Markup.button.webApp('🍹 Открыть меню', MINI_APP_URL)]
+    ])
+
+    // Обычная клавиатура для других команд
+    const replyKeyboard = Markup.keyboard([
       ['📋 Мои заказы', '📞 Контакты']
     ]).resize()
 
@@ -54,7 +59,7 @@ bot.command('start', async (ctx) => {
       `🚀 Быстрая доставка\n` +
       `💚 100% натуральные ингредиенты\n\n` +
       `Нажмите кнопку ниже, чтобы открыть меню:`,
-      keyboard
+      { ...inlineKeyboard, ...replyKeyboard }
     )
   } catch (error) {
     console.error('Error in /start command:', error)

@@ -131,6 +131,7 @@ import { useCartStore } from '@/stores/cart'
 import { useAppStore } from '@/stores/app'
 import { api } from '@/utils/supabase'
 import { formatPrice, hapticFeedback, showAlert, getUserData, requestContact } from '@/utils/telegram'
+import { debugLogger } from '@/utils/debug'
 
 const router = useRouter()
 const cartStore = useCartStore()
@@ -209,8 +210,11 @@ const requestUserContact = async () => {
 const submitOrder = async () => {
   if (submitting.value) return
 
+  debugLogger.log('submitOrder called')
+
   // Проверяем наличие контактных данных
   if (!userContact.value.phone_number) {
+    debugLogger.error('No phone number provided')
     hapticFeedback('error')
     showAlert('Пожалуйста, поделитесь своим контактом для оформления заказа')
     return
@@ -222,11 +226,25 @@ const submitOrder = async () => {
 
     // Получаем данные пользователя из Telegram
     const telegramUser = getUserData()
-    console.log('Telegram user data:', telegramUser)
-    console.log('User contact data:', userContact.value)
+    debugLogger.log('Telegram user data:', telegramUser)
+    debugLogger.log('User contact data:', userContact.value)
 
     if (!telegramUser || !telegramUser.id) {
-      throw new Error('Пожалуйста, откройте приложение через Telegram бота для оформления заказа')
+      debugLogger.error('No Telegram user data available', {
+        telegramUser,
+        hasTelegramWebApp: !!window.Telegram?.WebApp,
+        initDataLength: window.Telegram?.WebApp?.initData?.length || 0
+      })
+
+      // Показываем подробное сообщение об ошибке
+      const isDev = import.meta.env.DEV
+      let errorMsg = 'Пожалуйста, откройте приложение через Telegram бота (используйте inline кнопку "🍹 Открыть меню")'
+
+      if (isDev) {
+        errorMsg += '\n\nДля отладки: откройте приложение с параметром ?debug=1'
+      }
+
+      throw new Error(errorMsg)
     }
 
     // Создаем заказ с telegram_id и контактными данными
@@ -242,9 +260,9 @@ const submitOrder = async () => {
       status: 'pending'
     }
 
-    console.log('Creating order with data:', orderData)
+    debugLogger.log('Creating order with data:', orderData)
     const order = await api.createOrder(orderData)
-    console.log('Order created:', order)
+    debugLogger.log('Order created:', order)
 
     // Создаем позиции заказа
     const orderItems = cartStore.items.map(item => ({
@@ -254,7 +272,7 @@ const submitOrder = async () => {
       price: item.price
     }))
 
-    console.log('Creating order items:', orderItems)
+    debugLogger.log('Creating order items:', orderItems)
     await api.createOrderItems(order.id, orderItems)
 
     // Очищаем корзину
@@ -263,23 +281,25 @@ const submitOrder = async () => {
     hapticFeedback('success')
     showAlert('Заказ успешно оформлен! Ожидайте звонка для подтверждения.')
 
+    debugLogger.log('Order completed successfully')
+
     // Переходим на главную
     router.push('/')
 
   } catch (error) {
-    console.error('Error submitting order:', error)
+    debugLogger.error('Error submitting order', error)
     hapticFeedback('error')
 
     // Более информативное сообщение об ошибке
     let errorMessage = error.message || 'Произошла неизвестная ошибка'
 
     if (error.message?.includes('Telegram')) {
-      errorMessage = 'Пожалуйста, откройте приложение через Telegram бота'
+      errorMessage = error.message
     } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
       errorMessage = 'Ошибка сети. Проверьте подключение к интернету'
     }
 
-    showAlert(`Ошибка при оформлении заказа: ${errorMessage}`)
+    showAlert(`Ошибка при оформлении заказа:\n\n${errorMessage}`)
   } finally {
     submitting.value = false
   }

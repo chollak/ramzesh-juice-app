@@ -125,8 +125,10 @@ const submitOrder = async () => {
 
     // Получаем данные пользователя из Telegram
     const telegramUser = getUserData()
+    console.log('Telegram user data:', telegramUser)
+
     if (!telegramUser || !telegramUser.id) {
-      throw new Error('Не удалось получить данные пользователя из Telegram')
+      throw new Error('Пожалуйста, откройте приложение через Telegram бота для оформления заказа')
     }
 
     // Создаем заказ с telegram_id
@@ -142,7 +144,9 @@ const submitOrder = async () => {
       status: 'pending'
     }
 
+    console.log('Creating order with data:', orderData)
     const order = await api.createOrder(orderData)
+    console.log('Order created:', order)
 
     // Создаем позиции заказа
     const orderItems = cartStore.items.map(item => ({
@@ -152,6 +156,7 @@ const submitOrder = async () => {
       price: item.price
     }))
 
+    console.log('Creating order items:', orderItems)
     await api.createOrderItems(order.id, orderItems)
 
     // Очищаем корзину
@@ -166,7 +171,17 @@ const submitOrder = async () => {
   } catch (error) {
     console.error('Error submitting order:', error)
     hapticFeedback('error')
-    showAlert(`Ошибка: ${error.message}`)
+
+    // Более информативное сообщение об ошибке
+    let errorMessage = error.message || 'Произошла неизвестная ошибка'
+
+    if (error.message?.includes('Telegram')) {
+      errorMessage = 'Пожалуйста, откройте приложение через Telegram бота'
+    } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+      errorMessage = 'Ошибка сети. Проверьте подключение к интернету'
+    }
+
+    showAlert(`Ошибка при оформлении заказа: ${errorMessage}`)
   } finally {
     submitting.value = false
   }

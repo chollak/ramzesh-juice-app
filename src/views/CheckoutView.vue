@@ -210,17 +210,22 @@ const goBack = () => {
 
 const submitOrder = async () => {
   if (!isFormValid.value || submitting.value) return
-  
+
   try {
     submitting.value = true
     hapticFeedback('medium')
-    
+
+    // Проверяем авторизацию
+    if (!appStore.user || !appStore.user.id) {
+      throw new Error('Пользователь не авторизован')
+    }
+
     // Формируем адрес
     let fullAddress = form.value.address
     if (form.value.apartment) fullAddress += `, кв. ${form.value.apartment}`
     if (form.value.entrance) fullAddress += `, подъезд ${form.value.entrance}`
     if (form.value.floor) fullAddress += `, этаж ${form.value.floor}`
-    
+
     // Создаем заказ
     const orderData = {
       user_id: appStore.user.id,
@@ -231,30 +236,32 @@ const submitOrder = async () => {
       payment_method: form.value.paymentMethod,
       status: 'pending'
     }
-    
+
     const order = await api.createOrder(orderData)
-    
+
     // Создаем позиции заказа
-    await api.createOrderItems(order.id, cartStore.items.map(item => ({
+    const orderItems = cartStore.items.map(item => ({
       juice_id: item.id,
       name: item.name,
       quantity: item.quantity,
       price: item.price
-    })))
-    
+    }))
+
+    await api.createOrderItems(order.id, orderItems)
+
     // Очищаем корзину
     cartStore.clearCart()
-    
+
     hapticFeedback('success')
     showAlert('Заказ успешно оформлен! Ожидайте звонка для подтверждения.')
-    
-    // Переходим на страницу заказов
-    router.push(`/orders/${order.id}`)
-    
+
+    // Переходим на главную
+    router.push('/')
+
   } catch (error) {
     console.error('Error submitting order:', error)
     hapticFeedback('error')
-    showAlert('Ошибка при оформлении заказа. Попробуйте еще раз.')
+    showAlert(`Ошибка: ${error.message}`)
   } finally {
     submitting.value = false
   }

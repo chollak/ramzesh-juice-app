@@ -10,15 +10,38 @@ export const initTelegramApp = () => {
 
   // Инициализируем приложение
   tg.ready()
-  
+
   // Разворачиваем на весь экран
   tg.expand()
-  
+
   // Включаем главную кнопку
   tg.MainButton.setText('Оформить заказ')
   tg.MainButton.hide()
-  
+
+  // Применяем цвета темы Telegram
+  applyTelegramTheme()
+
   return tg
+}
+
+// Применить тему Telegram к приложению
+export const applyTelegramTheme = () => {
+  if (!tg?.themeParams) return
+
+  const root = document.documentElement
+  const theme = tg.themeParams
+
+  // Применяем цвета темы
+  if (theme.bg_color) root.style.setProperty('--tg-theme-bg-color', theme.bg_color)
+  if (theme.text_color) root.style.setProperty('--tg-theme-text-color', theme.text_color)
+  if (theme.hint_color) root.style.setProperty('--tg-theme-hint-color', theme.hint_color)
+  if (theme.link_color) root.style.setProperty('--tg-theme-link-color', theme.link_color)
+  if (theme.button_color) root.style.setProperty('--tg-theme-button-color', theme.button_color)
+  if (theme.button_text_color) root.style.setProperty('--tg-theme-button-text-color', theme.button_text_color)
+  if (theme.secondary_bg_color) root.style.setProperty('--tg-theme-secondary-bg-color', theme.secondary_bg_color)
+
+  // Устанавливаем фон body
+  document.body.style.backgroundColor = theme.bg_color || '#ffffff'
 }
 
 export const getUserData = () => {

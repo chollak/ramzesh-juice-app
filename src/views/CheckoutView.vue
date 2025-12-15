@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-tg-bg pb-24">
+  <div class="min-h-screen pb-24" style="background-color: #ffffff !important;">
     <!-- Заголовок -->
-    <header class="bg-tg-bg px-4 py-6 flex items-center gap-3">
+    <header class="px-4 py-6 flex items-center gap-3" style="background-color: #ffffff !important;">
       <button 
         @click="goBack"
         class="text-tg-button"

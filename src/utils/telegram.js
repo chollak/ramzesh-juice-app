@@ -3,13 +3,25 @@
 export const tg = window.Telegram?.WebApp
 
 export const initTelegramApp = () => {
+  console.log('Initializing Telegram WebApp...')
+  console.log('window.Telegram:', window.Telegram)
+  console.log('window.Telegram.WebApp:', tg)
+
   if (!tg) {
     console.warn('Telegram WebApp is not available')
+    console.log('Running in browser mode (not in Telegram)')
     return null
   }
 
+  // Логируем информацию о Telegram WebApp
+  console.log('Telegram WebApp version:', tg.version)
+  console.log('Telegram WebApp platform:', tg.platform)
+  console.log('Telegram initData:', tg.initData)
+  console.log('Telegram initDataUnsafe:', tg.initDataUnsafe)
+
   // Инициализируем приложение
   tg.ready()
+  console.log('Telegram WebApp ready')
 
   // Разворачиваем на весь экран
   tg.expand()
@@ -21,6 +33,7 @@ export const initTelegramApp = () => {
   // Применяем цвета темы Telegram
   applyTelegramTheme()
 
+  console.log('Telegram WebApp initialized successfully')
   return tg
 }
 
@@ -45,9 +58,32 @@ export const applyTelegramTheme = () => {
 }
 
 export const getUserData = () => {
-  if (!tg) return null
+  // Режим разработки: если Telegram WebApp недоступен, используем тестовые данные
+  const isDevelopment = import.meta.env.DEV
 
-  return {
+  if (!tg) {
+    console.warn('Telegram WebApp is not available')
+
+    // В режиме разработки возвращаем тестового пользователя
+    if (isDevelopment) {
+      console.log('Using development mode test user')
+      return {
+        id: 999999999,
+        first_name: 'Test',
+        last_name: 'User',
+        username: 'testuser',
+        language_code: 'ru',
+        phone_number: null,
+      }
+    }
+
+    return null
+  }
+
+  // Логируем данные для отладки
+  console.log('Telegram initDataUnsafe:', tg.initDataUnsafe)
+
+  const userData = {
     id: tg.initDataUnsafe?.user?.id,
     first_name: tg.initDataUnsafe?.user?.first_name,
     last_name: tg.initDataUnsafe?.user?.last_name,
@@ -55,21 +91,51 @@ export const getUserData = () => {
     language_code: tg.initDataUnsafe?.user?.language_code,
     phone_number: tg.initDataUnsafe?.user?.phone_number,
   }
+
+  // Если ID пользователя отсутствует, но мы в режиме разработки
+  if (!userData.id && isDevelopment) {
+    console.warn('User ID not found in Telegram data, using test user')
+    return {
+      id: 999999999,
+      first_name: 'Test',
+      last_name: 'User',
+      username: 'testuser',
+      language_code: 'ru',
+      phone_number: null,
+    }
+  }
+
+  return userData
 }
 
 // Запросить номер телефона пользователя
-export const requestContact = (callback) => {
-  if (!tg) {
-    callback(null)
-    return
-  }
-
-  tg.requestContact((success, event) => {
-    if (success && event?.responseUnsafe?.contact) {
-      callback(event.responseUnsafe.contact.phone_number)
-    } else {
-      callback(null)
+export const requestContact = () => {
+  return new Promise((resolve, reject) => {
+    if (!tg) {
+      console.warn('Telegram WebApp not available for contact request')
+      reject(new Error('Telegram WebApp недоступен'))
+      return
     }
+
+    console.log('Requesting contact from user...')
+
+    tg.requestContact((success, event) => {
+      console.log('Contact request result:', { success, event })
+
+      if (success && event?.responseUnsafe?.contact) {
+        const contact = event.responseUnsafe.contact
+        console.log('Contact received:', contact)
+        resolve({
+          phone_number: contact.phone_number,
+          first_name: contact.first_name,
+          last_name: contact.last_name,
+          user_id: contact.user_id
+        })
+      } else {
+        console.warn('Contact request was cancelled or failed')
+        reject(new Error('Запрос контакта был отменен'))
+      }
+    })
   })
 }
 

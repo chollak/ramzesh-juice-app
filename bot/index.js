@@ -52,6 +52,7 @@ bot.command('start', async (ctx) => {
       ['📋 Мои заказы', '📞 Контакты']
     ]).resize()
 
+    // Отправляем сообщение с inline кнопкой для WebApp
     await ctx.reply(
       `Привет, ${firstName}! 👋\n\n` +
       `Добро пожаловать в магазин натуральных соков!\n\n` +
@@ -59,7 +60,13 @@ bot.command('start', async (ctx) => {
       `🚀 Быстрая доставка\n` +
       `💚 100% натуральные ингредиенты\n\n` +
       `Нажмите кнопку ниже, чтобы открыть меню:`,
-      { ...inlineKeyboard, ...replyKeyboard }
+      inlineKeyboard
+    )
+
+    // Отправляем обычную клавиатуру
+    await ctx.reply(
+      `Также доступны следующие команды:`,
+      replyKeyboard
     )
   } catch (error) {
     console.error('Error in /start command:', error)
@@ -108,7 +115,7 @@ bot.hears('📋 Мои заказы', async (ctx) => {
 
     let message = '📋 *Ваши последние заказы:*\n\n'
 
-    orders.forEach((order, index) => {
+    orders.forEach((order) => {
       const statusEmoji = {
         pending: '⏳',
         confirmed: '✅',

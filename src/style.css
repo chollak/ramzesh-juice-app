@@ -16,17 +16,53 @@ body {
   margin: 0;
   padding: 0;
   background-color: #ffffff !important;
-  color: #000000;
+  color: #000000 !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
+/* Принудительная белая тема для всех элементов */
+html, body, #app {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Переопределяем любые темные цвета от Telegram */
+* {
+  -webkit-text-fill-color: inherit !important;
+}
+
+/* Дополнительные правила для текста */
+h1, h2, h3, h4, h5, h6, p, span, div, a, button {
+  color: #000000 !important;
+}
+
+/* Исключение для кнопок с собственными цветами */
+.btn-primary, .cart-fab {
+  color: var(--tg-theme-button-text-color) !important;
+}
+
 #app {
   min-height: 100vh;
   padding-bottom: 80px;
   background-color: #ffffff !important;
+}
+
+/* Telegram WebApp theme override - ALWAYS force white background and black text */
+.tg-webapp-light-theme {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Force white theme for all possible Telegram theme classes */
+body[data-tg-theme="dark"], 
+body[data-theme="dark"],
+.dark-theme,
+[data-theme="dark"] {
+  background-color: #ffffff !important;
+  color: #000000 !important;
 }
 
 /* Кастомные стили */

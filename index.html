@@ -6,16 +6,36 @@
   <title>Натуральные Соки - Заказ</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    html, body {
+    /* Force white theme before any scripts load */
+    html, body, #app {
       margin: 0;
       padding: 0;
       background-color: #ffffff !important;
-      color: #000000;
+      color: #000000 !important;
     }
     body {
       overflow-x: hidden;
     }
+    /* Override any Telegram theme classes */
+    body[data-tg-theme="dark"], 
+    body[data-theme="dark"],
+    .dark-theme,
+    [data-theme="dark"] {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+    /* Prevent text color inheritance issues */
+    * {
+      -webkit-text-fill-color: inherit !important;
+    }
   </style>
+  <script>
+    // Force white theme immediately when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      document.body.style.backgroundColor = '#ffffff';
+      document.body.style.color = '#000000';
+    });
+  </script>
 </head>
 <body>
   <div id="app"></div>

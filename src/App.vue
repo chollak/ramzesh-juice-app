@@ -16,8 +16,23 @@ import { initTelegramApp } from '@/utils/telegram'
 const appStore = useAppStore()
 
 onMounted(async () => {
+  // Принудительно устанавливаем белую тему перед инициализацией
+  document.body.style.backgroundColor = '#ffffff'
+  document.body.style.color = '#000000'
+  
   // Инициализируем Telegram Web App
   initTelegramApp()
+  
+  // Принудительно применяем белую тему после инициализации
+  setTimeout(() => {
+    document.body.style.backgroundColor = '#ffffff'
+    document.body.style.color = '#000000'
+    const app = document.getElementById('app')
+    if (app) {
+      app.style.backgroundColor = '#ffffff'
+      app.style.color = '#000000'
+    }
+  }, 100)
   
   // Инициализируем приложение
   await appStore.initApp()

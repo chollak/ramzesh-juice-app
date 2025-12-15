@@ -48,23 +48,38 @@ export const initTelegramApp = () => {
 
 // Применить тему Telegram к приложению
 export const applyTelegramTheme = () => {
-  if (!tg?.themeParams) return
-
   const root = document.documentElement
-  const theme = tg.themeParams
+  
+  // Принудительно устанавливаем белую тему для всех случаев
+  root.style.setProperty('--tg-theme-bg-color', '#ffffff')
+  root.style.setProperty('--tg-theme-text-color', '#000000')
+  root.style.setProperty('--tg-theme-hint-color', '#999999')
+  root.style.setProperty('--tg-theme-secondary-bg-color', '#f4f4f5')
+  
+  if (!tg?.themeParams) {
+    // Если Telegram недоступен, используем стандартные цвета
+    root.style.setProperty('--tg-theme-link-color', '#2481cc')
+    root.style.setProperty('--tg-theme-button-color', '#2481cc')
+    root.style.setProperty('--tg-theme-button-text-color', '#ffffff')
+  } else {
+    const theme = tg.themeParams
+    
+    // Применяем только кнопки и ссылки из темы Telegram, но НЕ цвет фона и текста
+    if (theme.link_color) root.style.setProperty('--tg-theme-link-color', theme.link_color)
+    if (theme.button_color) root.style.setProperty('--tg-theme-button-color', theme.button_color)
+    if (theme.button_text_color) root.style.setProperty('--tg-theme-button-text-color', theme.button_text_color)
+  }
 
-  // Применяем цвета темы
-  // НЕ применяем bg_color - фон всегда белый
-  // if (theme.bg_color) root.style.setProperty('--tg-theme-bg-color', theme.bg_color)
-  if (theme.text_color) root.style.setProperty('--tg-theme-text-color', theme.text_color)
-  if (theme.hint_color) root.style.setProperty('--tg-theme-hint-color', theme.hint_color)
-  if (theme.link_color) root.style.setProperty('--tg-theme-link-color', theme.link_color)
-  if (theme.button_color) root.style.setProperty('--tg-theme-button-color', theme.button_color)
-  if (theme.button_text_color) root.style.setProperty('--tg-theme-button-text-color', theme.button_text_color)
-  if (theme.secondary_bg_color) root.style.setProperty('--tg-theme-secondary-bg-color', theme.secondary_bg_color)
-
-  // Устанавливаем фон body ВСЕГДА белый
-  document.body.style.backgroundColor = '#ffffff'
+  // Принудительно устанавливаем белый фон для всех элементов
+  document.body.style.backgroundColor = '#ffffff !important'
+  document.body.style.color = '#000000 !important'
+  
+  // Устанавливаем белый фон для корневого элемента приложения
+  const appElement = document.getElementById('app')
+  if (appElement) {
+    appElement.style.backgroundColor = '#ffffff !important'
+    appElement.style.color = '#000000 !important'
+  }
 }
 
 export const getUserData = () => {

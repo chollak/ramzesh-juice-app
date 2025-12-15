@@ -1,100 +1,108 @@
 <template>
-  <div class="min-h-screen pb-24" style="background-color: #ffffff !important;">
+  <div class="cart-view">
     <!-- Заголовок -->
-    <header class="px-4 py-6 flex items-center gap-3" style="background-color: #ffffff !important;">
-      <button 
-        @click="goBack"
-        class="text-tg-button"
-      >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-      <h1 class="text-2xl font-bold text-tg-text">Корзина</h1>
-    </header>
+    <AppHeader
+      title="Корзина"
+      show-back
+    />
 
-    <!-- Пустая корзина -->
-    <div v-if="isEmpty" class="px-4 py-20 text-center">
-      <svg class="w-24 h-24 mx-auto mb-4 text-tg-hint opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
-      <p class="text-tg-hint text-lg mb-6">Ваша корзина пуста</p>
-      <button 
-        @click="goToMenu"
-        class="btn-primary"
-      >
-        Перейти в меню
-      </button>
-    </div>
-
-    <!-- Товары в корзине -->
-    <div v-else class="px-4">
-      <div class="space-y-3 mb-6">
-        <div
-          v-for="item in items"
-          :key="item.id"
-          class="bg-white rounded-2xl p-4 shadow-sm flex gap-4"
+    <!-- Контент -->
+    <div class="cart-view__content">
+      <!-- Пустая корзина -->
+      <div v-if="isEmpty" class="cart-view__empty">
+        <va-icon name="shopping_cart" size="4rem" color="secondary" />
+        <h3>Ваша корзина пуста</h3>
+        <p>Добавьте товары из каталога</p>
+        <BaseButton
+          color="primary"
+          size="large"
+          @click="goToMenu"
         >
-          <img 
-            :src="item.image_url" 
-            :alt="item.name"
-            class="w-20 h-20 object-cover rounded-xl"
-          >
-          
-          <div class="flex-1">
-            <h3 class="font-semibold text-tg-text mb-1">{{ item.name }}</h3>
-            <p class="text-sm text-tg-hint mb-2">{{ item.volume_ml }} мл</p>
-            <p class="text-lg font-bold text-tg-text">{{ formatPrice(item.price) }}</p>
-          </div>
-          
-          <div class="flex flex-col items-end justify-between">
-            <button
-              @click="removeItem(item.id)"
-              class="text-red-500 p-1"
+          Перейти в меню
+        </BaseButton>
+      </div>
+
+      <!-- Товары в корзине -->
+      <div v-else class="cart-view__items">
+        <!-- Список товаров -->
+        <div class="cart-view__list">
+          <TransitionGroup name="cart-item" tag="div">
+            <BaseCard
+              v-for="item in items"
+              :key="item.id"
+              class="cart-view__item"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
-            
-            <div class="flex items-center gap-2">
-              <button
-                @click="decrementQuantity(item.id)"
-                class="bg-tg-secondary-bg w-8 h-8 rounded-lg flex items-center justify-center font-bold text-tg-text"
-              >
-                −
-              </button>
-              <span class="font-semibold text-tg-text min-w-[20px] text-center">{{ item.quantity }}</span>
-              <button
-                @click="incrementQuantity(item.id)"
-                class="bg-tg-button text-tg-button-text w-8 h-8 rounded-lg flex items-center justify-center font-bold"
-              >
-                +
-              </button>
+              <div class="cart-item">
+                <img 
+                  :src="item.image_url" 
+                  :alt="item.name"
+                  class="cart-item__image"
+                >
+                
+                <div class="cart-item__info">
+                  <h4 class="cart-item__name">{{ item.name }}</h4>
+                  <p class="cart-item__volume">{{ item.volume_ml }} мл</p>
+                  <p class="cart-item__price">{{ formatPrice(item.price) }}</p>
+                </div>
+                
+                <div class="cart-item__actions">
+                  <BaseButton
+                    preset="plain"
+                    color="danger"
+                    size="small"
+                    @click="removeItem(item.id)"
+                  >
+                    <va-icon name="delete" />
+                  </BaseButton>
+                  
+                  <div class="cart-item__quantity">
+                    <BaseButton
+                      size="small"
+                      color="secondary"
+                      @click="decrementQuantity(item.id)"
+                    >
+                      −
+                    </BaseButton>
+                    <span class="cart-item__count">{{ item.quantity }}</span>
+                    <BaseButton
+                      size="small"
+                      color="primary"
+                      @click="incrementQuantity(item.id)"
+                    >
+                      +
+                    </BaseButton>
+                  </div>
+                </div>
+              </div>
+            </BaseCard>
+          </TransitionGroup>
+        </div>
+
+        <!-- Итого -->
+        <BaseCard class="cart-view__summary">
+          <div class="cart-summary">
+            <div class="cart-summary__row">
+              <span>Товаров:</span>
+              <span>{{ cartCount }}</span>
+            </div>
+            <div class="cart-summary__row cart-summary__total">
+              <span>Итого:</span>
+              <span>{{ formatPrice(cartTotal) }}</span>
             </div>
           </div>
-        </div>
-      </div>
+        </BaseCard>
 
-      <!-- Итого -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm mb-6">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-tg-hint">Товаров:</span>
-          <span class="font-semibold text-tg-text">{{ cartCount }}</span>
-        </div>
-        <div class="flex items-center justify-between text-lg">
-          <span class="font-bold text-tg-text">Итого:</span>
-          <span class="font-bold text-tg-text">{{ formatPrice(cartTotal) }}</span>
-        </div>
+        <!-- Кнопка оформления -->
+        <BaseButton
+          color="primary"
+          size="large"
+          block
+          class="cart-view__checkout"
+          @click="goToCheckout"
+        >
+          Оформить заказ
+        </BaseButton>
       </div>
-
-      <!-- Кнопка оформления заказа -->
-      <button
-        @click="goToCheckout"
-        class="w-full btn-primary text-lg py-4"
-      >
-        Оформить заказ
-      </button>
     </div>
   </div>
 </template>
@@ -105,19 +113,21 @@ import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice, hapticFeedback, showConfirm } from '@/utils/telegram'
 
+// Импорт компонентов
+import AppHeader from '@/components/layout/AppHeader.vue'
+import BaseCard from '@/components/ui/BaseCard.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+
 const router = useRouter()
 const cartStore = useCartStore()
 
+// Reactive data
 const items = computed(() => cartStore.items)
 const cartCount = computed(() => cartStore.cartCount)
 const cartTotal = computed(() => cartStore.cartTotal)
 const isEmpty = computed(() => cartStore.isEmpty)
 
-const goBack = () => {
-  hapticFeedback('light')
-  router.back()
-}
-
+// Methods
 const goToMenu = () => {
   hapticFeedback('light')
   router.push('/')
@@ -145,3 +155,162 @@ const decrementQuantity = (itemId) => {
   cartStore.decrementQuantity(itemId)
 }
 </script>
+
+<style scoped>
+.cart-view {
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.cart-view__content {
+  padding: 16px;
+}
+
+.cart-view__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  gap: 16px;
+}
+
+.cart-view__empty h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--va-text-primary);
+}
+
+.cart-view__empty p {
+  margin: 0;
+  color: var(--va-text-secondary);
+}
+
+.cart-view__items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cart-view__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cart-view__item {
+  overflow: visible;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.cart-item__image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.cart-item__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cart-item__name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.cart-item__volume {
+  margin: 0;
+  font-size: 14px;
+  color: var(--va-text-secondary);
+}
+
+.cart-item__price {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--va-primary);
+}
+
+.cart-item__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.cart-item__quantity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cart-item__count {
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.cart-view__summary {
+  background-color: var(--va-background-secondary);
+}
+
+.cart-summary {
+  padding: 16px;
+}
+
+.cart-summary__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.cart-summary__row:last-child {
+  margin-bottom: 0;
+}
+
+.cart-summary__total {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--va-primary);
+}
+
+.cart-view__checkout {
+  margin-top: 8px;
+}
+
+/* Анимации */
+.cart-item-enter-active,
+.cart-item-leave-active {
+  transition: all 0.3s ease;
+}
+
+.cart-item-enter-from {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.cart-item-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.cart-item-move {
+  transition: transform 0.3s ease;
+}
+</style>

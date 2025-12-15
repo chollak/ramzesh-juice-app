@@ -1,17 +1,21 @@
 <template>
-  <div id="app" class="min-h-screen" style="background-color: #ffffff !important;">
+  <va-app class="app" :style="{ backgroundColor: '#ffffff' }">
     <router-view v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
+      <transition name="page" mode="out-in">
         <component :is="Component" />
       </transition>
     </router-view>
-  </div>
+    
+    <!-- Global FAB for cart -->
+    <CartFab />
+  </va-app>
 </template>
 
 <script setup>
 import { onMounted } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { initTelegramApp } from '@/utils/telegram'
+import CartFab from '@/components/business/CartFab.vue'
 
 const appStore = useAppStore()
 
@@ -27,11 +31,6 @@ onMounted(async () => {
   setTimeout(() => {
     document.body.style.backgroundColor = '#ffffff'
     document.body.style.color = '#000000'
-    const app = document.getElementById('app')
-    if (app) {
-      app.style.backgroundColor = '#ffffff'
-      app.style.color = '#000000'
-    }
   }, 100)
   
   // Инициализируем приложение
@@ -40,13 +39,25 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
+.app {
+  min-height: 100vh;
+  background-color: #ffffff !important;
+  padding-bottom: 80px;
 }
 
-.fade-enter-from,
-.fade-leave-to {
+/* Анимации переходов между страницами */
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.2s ease;
+}
+
+.page-enter-from {
   opacity: 0;
+  transform: translateX(10px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateX(-10px);
 }
 </style>

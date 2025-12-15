@@ -1,125 +1,130 @@
 <template>
-  <div class="min-h-screen pb-24" style="background-color: #ffffff !important;">
+  <div class="checkout-view">
     <!-- Заголовок -->
-    <header class="px-4 py-6 flex items-center gap-3" style="background-color: #ffffff !important;">
-      <button 
-        @click="goBack"
-        class="text-tg-button"
-      >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-      <h1 class="text-2xl font-bold text-tg-text">Оформление заказа</h1>
-    </header>
+    <AppHeader
+      title="Оформление заказа"
+      show-back
+    />
 
-    <div class="px-4 space-y-4">
-      <!-- Информация о пользователе -->
-      <div class="bg-tg-secondary-bg rounded-2xl p-5">
-        <h2 class="font-bold text-tg-text mb-3 text-sm uppercase tracking-wide opacity-70">Контактные данные</h2>
+    <!-- Контент -->
+    <div class="checkout-view__content">
+      <!-- Контактные данные -->
+      <BaseCard class="checkout-view__section">
+        <template #header>
+          <h3 class="section-title">Контактные данные</h3>
+        </template>
 
-        <div v-if="userContact.phone_number" class="space-y-2">
-          <div class="flex items-center gap-2 text-tg-text">
-            <svg class="w-5 h-5 text-tg-button" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+        <div v-if="userContact.phone_number" class="contact-info">
+          <div class="contact-info__item">
+            <va-icon name="person" color="primary" />
             <span>{{ userContact.first_name }} {{ userContact.last_name }}</span>
           </div>
-          <div class="flex items-center gap-2 text-tg-text">
-            <svg class="w-5 h-5 text-tg-button" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
+          <div class="contact-info__item">
+            <va-icon name="phone" color="primary" />
             <span>{{ userContact.phone_number }}</span>
           </div>
         </div>
 
-        <button
+        <BaseButton
           v-else
+          color="primary"
+          size="large"
+          block
+          :loading="requestingContact"
           @click="requestUserContact"
-          :disabled="requestingContact"
-          class="w-full btn-primary py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
         >
-          <svg v-if="!requestingContact" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-          </svg>
-          <div v-else class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-          <span>{{ requestingContact ? 'Ожидание...' : 'Поделиться контактом' }}</span>
-        </button>
+          <va-icon name="share" class="mr-2" />
+          Поделиться контактом
+        </BaseButton>
 
-        <p v-if="!userContact.phone_number" class="text-xs text-tg-hint mt-2 text-center">
-          Для оформления заказа нам нужен ваш номер телефона для связи
-        </p>
-      </div>
+        <va-alert
+          v-if="!userContact.phone_number"
+          color="info"
+          border="left"
+          class="mt-3"
+        >
+          Для оформления заказа нужен ваш номер телефона
+        </va-alert>
+      </BaseCard>
 
-      <!-- Информация о заказе -->
-      <div class="bg-tg-secondary-bg rounded-2xl p-5">
-        <h2 class="font-bold text-tg-text mb-3 text-sm uppercase tracking-wide opacity-70">Комментарий к заказу</h2>
+      <!-- Комментарий к заказу -->
+      <BaseCard class="checkout-view__section">
+        <template #header>
+          <h3 class="section-title">Комментарий к заказу</h3>
+        </template>
 
-        <div>
-          <textarea
-            v-model="form.comment"
-            placeholder="Дополнительные пожелания к заказу (необязательно)"
-            class="w-full px-4 py-3 bg-tg-bg rounded-xl border-none outline-none text-tg-text placeholder-tg-hint resize-none focus:ring-2 focus:ring-tg-button focus:ring-opacity-50 transition-all"
-            rows="3"
-          ></textarea>
-        </div>
-      </div>
+        <va-textarea
+          v-model="form.comment"
+          placeholder="Дополнительные пожелания (необязательно)"
+          :rows="3"
+          autosize
+        />
+      </BaseCard>
 
       <!-- Способ оплаты -->
-      <div class="bg-tg-secondary-bg rounded-2xl p-5">
-        <h2 class="font-bold text-tg-text mb-3 text-sm uppercase tracking-wide opacity-70">Способ оплаты</h2>
+      <BaseCard class="checkout-view__section">
+        <template #header>
+          <h3 class="section-title">Способ оплаты</h3>
+        </template>
 
-        <div class="space-y-3">
-          <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-tg-bg hover:bg-opacity-80 transition-all">
-            <input
-              v-model="form.paymentMethod"
-              type="radio"
-              value="cash"
-              class="w-5 h-5 text-tg-button focus:ring-tg-button focus:ring-2"
-            >
-            <span class="text-tg-text font-medium">Наличные при получении</span>
-          </label>
-
-          <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-tg-bg hover:bg-opacity-80 transition-all">
-            <input
-              v-model="form.paymentMethod"
-              type="radio"
-              value="card"
-              class="w-5 h-5 text-tg-button focus:ring-tg-button focus:ring-2"
-            >
-            <span class="text-tg-text font-medium">Картой при получении</span>
-          </label>
-        </div>
-      </div>
+        <va-radio
+          v-model="form.paymentMethod"
+          option="cash"
+          label="Наличные при получении"
+          class="payment-option"
+        />
+        <va-radio
+          v-model="form.paymentMethod"
+          option="card"
+          label="Картой при получении"
+          class="payment-option"
+        />
+      </BaseCard>
 
       <!-- Итого -->
-      <div class="bg-tg-secondary-bg rounded-2xl p-5">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-tg-hint text-sm">Товаров:</span>
-          <span class="font-semibold text-tg-text">{{ cartCount }}</span>
+      <BaseCard class="checkout-view__summary" color="secondary">
+        <template #header>
+          <h3 class="section-title">Ваш заказ</h3>
+        </template>
+
+        <div class="order-summary">
+          <div class="order-summary__row">
+            <span>Товаров:</span>
+            <span>{{ cartCount }}</span>
+          </div>
+          <va-divider />
+          <div class="order-summary__row order-summary__total">
+            <span>Итого:</span>
+            <span>{{ formatPrice(cartTotal) }}</span>
+          </div>
         </div>
-        <div class="flex items-center justify-between text-2xl">
-          <span class="font-bold text-tg-text">Итого:</span>
-          <span class="font-bold text-tg-button">{{ formatPrice(cartTotal) }}</span>
-        </div>
-      </div>
+      </BaseCard>
 
       <!-- Кнопка подтверждения -->
-      <button
+      <BaseButton
+        color="primary"
+        size="large"
+        block
+        :loading="submitting"
+        :disabled="!userContact.phone_number"
         @click="submitOrder"
-        :disabled="submitting || !userContact.phone_number"
-        class="w-full btn-primary text-lg py-4 rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <span v-if="submitting" class="flex items-center justify-center gap-2">
-          <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-          Оформление...
-        </span>
-        <span v-else>Подтвердить заказ</span>
-      </button>
+        <template v-if="submitting">
+          Оформляем заказ...
+        </template>
+        <template v-else>
+          Подтвердить заказ
+        </template>
+      </BaseButton>
 
-      <p v-if="!userContact.phone_number" class="text-xs text-tg-hint text-center -mt-2">
+      <va-alert
+        v-if="!userContact.phone_number"
+        color="warning"
+        border="left"
+        class="mt-3"
+      >
         Сначала поделитесь контактом выше ☝️
-      </p>
+      </va-alert>
     </div>
   </div>
 </template>
@@ -133,10 +138,16 @@ import { api } from '@/utils/supabase'
 import { formatPrice, hapticFeedback, showAlert, getUserData, requestContact } from '@/utils/telegram'
 import { debugLogger } from '@/utils/debug'
 
+// Импорт компонентов
+import AppHeader from '@/components/layout/AppHeader.vue'
+import BaseCard from '@/components/ui/BaseCard.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+
 const router = useRouter()
 const cartStore = useCartStore()
 const appStore = useAppStore()
 
+// Form data
 const form = ref({
   comment: '',
   paymentMethod: 'cash'
@@ -151,9 +162,11 @@ const userContact = ref({
   user_id: null
 })
 
+// Computed
 const cartCount = computed(() => cartStore.cartCount)
 const cartTotal = computed(() => cartStore.cartTotal)
 
+// Methods
 onMounted(() => {
   if (cartStore.isEmpty) {
     router.push('/')
@@ -171,11 +184,6 @@ onMounted(() => {
     }
   }
 })
-
-const goBack = () => {
-  hapticFeedback('light')
-  router.back()
-}
 
 const requestUserContact = async () => {
   if (requestingContact.value) return
@@ -305,3 +313,76 @@ const submitOrder = async () => {
   }
 }
 </script>
+
+<style scoped>
+.checkout-view {
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.checkout-view__content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.checkout-view__section {
+  /* Card styling handled by BaseCard */
+}
+
+.checkout-view__summary {
+  background-color: var(--va-background-secondary);
+}
+
+.section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--va-text-primary);
+  padding-bottom: 8px;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contact-info__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+}
+
+.payment-option {
+  margin-bottom: 8px;
+}
+
+.order-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-summary__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-summary__total {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--va-primary);
+}
+
+.mr-2 {
+  margin-right: 8px;
+}
+
+.mt-3 {
+  margin-top: 12px;
+}
+</style>

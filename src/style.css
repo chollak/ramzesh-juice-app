@@ -73,3 +73,43 @@ body {
 .cart-fab {
   @apply fixed bottom-6 right-6 bg-tg-button text-tg-button-text rounded-full shadow-lg z-50 transition-all active:scale-90;
 }
+
+/* Кастомные radio buttons */
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--tg-theme-hint-color);
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+input[type="radio"]:checked {
+  border-color: var(--tg-theme-button-color);
+  background-color: var(--tg-theme-button-color);
+}
+
+input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: white;
+}
+
+input[type="radio"]:hover {
+  border-color: var(--tg-theme-button-color);
+}
+
+input[type="radio"]:focus {
+  box-shadow: 0 0 0 3px rgba(36, 129, 204, 0.1);
+}

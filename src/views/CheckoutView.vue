@@ -13,55 +13,55 @@
       <h1 class="text-2xl font-bold text-tg-text">Оформление заказа</h1>
     </header>
 
-    <div class="px-4 space-y-6">
+    <div class="px-4 space-y-4">
       <!-- Информация о заказе -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm">
-        <h2 class="font-bold text-tg-text mb-4">Комментарий к заказу</h2>
+      <div class="bg-tg-secondary-bg rounded-2xl p-5">
+        <h2 class="font-bold text-tg-text mb-3 text-sm uppercase tracking-wide opacity-70">Комментарий к заказу</h2>
 
         <div>
           <textarea
             v-model="form.comment"
             placeholder="Дополнительные пожелания к заказу (необязательно)"
-            class="input-field resize-none"
+            class="w-full px-4 py-3 bg-tg-bg rounded-xl border-none outline-none text-tg-text placeholder-tg-hint resize-none focus:ring-2 focus:ring-tg-button focus:ring-opacity-50 transition-all"
             rows="3"
           ></textarea>
         </div>
       </div>
 
       <!-- Способ оплаты -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm">
-        <h2 class="font-bold text-tg-text mb-4">Способ оплаты</h2>
-        
-        <div class="space-y-2">
-          <label class="flex items-center gap-3 cursor-pointer">
+      <div class="bg-tg-secondary-bg rounded-2xl p-5">
+        <h2 class="font-bold text-tg-text mb-3 text-sm uppercase tracking-wide opacity-70">Способ оплаты</h2>
+
+        <div class="space-y-3">
+          <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-tg-bg hover:bg-opacity-80 transition-all">
             <input
               v-model="form.paymentMethod"
               type="radio"
               value="cash"
-              class="w-5 h-5"
+              class="w-5 h-5 text-tg-button focus:ring-tg-button focus:ring-2"
             >
-            <span class="text-tg-text">Наличные при получении</span>
+            <span class="text-tg-text font-medium">Наличные при получении</span>
           </label>
-          
-          <label class="flex items-center gap-3 cursor-pointer">
+
+          <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-tg-bg hover:bg-opacity-80 transition-all">
             <input
               v-model="form.paymentMethod"
               type="radio"
               value="card"
-              class="w-5 h-5"
+              class="w-5 h-5 text-tg-button focus:ring-tg-button focus:ring-2"
             >
-            <span class="text-tg-text">Картой при получении</span>
+            <span class="text-tg-text font-medium">Картой при получении</span>
           </label>
         </div>
       </div>
 
       <!-- Итого -->
-      <div class="bg-tg-button bg-opacity-10 rounded-2xl p-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-tg-hint">Товаров:</span>
+      <div class="bg-tg-secondary-bg rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-tg-hint text-sm">Товаров:</span>
           <span class="font-semibold text-tg-text">{{ cartCount }}</span>
         </div>
-        <div class="flex items-center justify-between text-xl">
+        <div class="flex items-center justify-between text-2xl">
           <span class="font-bold text-tg-text">Итого:</span>
           <span class="font-bold text-tg-button">{{ formatPrice(cartTotal) }}</span>
         </div>
@@ -71,7 +71,7 @@
       <button
         @click="submitOrder"
         :disabled="submitting"
-        class="w-full btn-primary text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="w-full btn-primary text-lg py-4 rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span v-if="submitting" class="flex items-center justify-center gap-2">
           <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>

@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-tg-bg pb-24">
+  <div class="min-h-screen pb-24" style="background-color: #ffffff !important;">
     <!-- Заголовок -->
-    <header class="bg-tg-bg px-4 py-6 sticky top-0 z-20">
+    <header class="px-4 py-6 sticky top-0 z-20" style="background-color: #ffffff !important;">
       <h1 class="text-2xl font-bold text-tg-text mb-1">Натуральные соки</h1>
       <p class="text-sm text-tg-hint">Свежие соки каждый день</p>
     </header>

@@ -54,7 +54,8 @@ export const applyTelegramTheme = () => {
   const theme = tg.themeParams
 
   // Применяем цвета темы
-  if (theme.bg_color) root.style.setProperty('--tg-theme-bg-color', theme.bg_color)
+  // НЕ применяем bg_color - фон всегда белый
+  // if (theme.bg_color) root.style.setProperty('--tg-theme-bg-color', theme.bg_color)
   if (theme.text_color) root.style.setProperty('--tg-theme-text-color', theme.text_color)
   if (theme.hint_color) root.style.setProperty('--tg-theme-hint-color', theme.hint_color)
   if (theme.link_color) root.style.setProperty('--tg-theme-link-color', theme.link_color)
@@ -62,8 +63,8 @@ export const applyTelegramTheme = () => {
   if (theme.button_text_color) root.style.setProperty('--tg-theme-button-text-color', theme.button_text_color)
   if (theme.secondary_bg_color) root.style.setProperty('--tg-theme-secondary-bg-color', theme.secondary_bg_color)
 
-  // Устанавливаем фон body
-  document.body.style.backgroundColor = theme.bg_color || '#ffffff'
+  // Устанавливаем фон body ВСЕГДА белый
+  document.body.style.backgroundColor = '#ffffff'
 }
 
 export const getUserData = () => {

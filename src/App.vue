@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="min-h-screen bg-tg-bg">
+  <div id="app" class="min-h-screen" style="background-color: #ffffff !important;">
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
         <component :is="Component" />

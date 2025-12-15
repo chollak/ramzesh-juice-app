@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --tg-theme-bg-color: #ffffff;
+  --tg-theme-text-color: #000000;
+  --tg-theme-hint-color: #999999;
+  --tg-theme-link-color: #2481cc;
+  --tg-theme-button-color: #2481cc;
+  --tg-theme-button-text-color: #ffffff;
+  --tg-theme-secondary-bg-color: #f4f4f5;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+#app {
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* Кастомные стили */
+.juice-card {
+  @apply bg-white rounded-2xl shadow-sm overflow-hidden transition-all hover:shadow-md;
+}
+
+.btn-primary {
+  @apply bg-tg-button text-tg-button-text px-6 py-3 rounded-xl font-medium transition-all active:scale-95;
+}
+
+.btn-secondary {
+  @apply bg-tg-secondary-bg text-tg-text px-6 py-3 rounded-xl font-medium transition-all active:scale-95;
+}
+
+.input-field {
+  @apply w-full px-4 py-3 bg-tg-secondary-bg rounded-xl border-none outline-none text-tg-text;
+}
+
+.category-badge {
+  @apply px-4 py-2 rounded-full bg-tg-secondary-bg text-sm font-medium transition-all;
+}
+
+.category-badge.active {
+  @apply bg-tg-button text-tg-button-text;
+}
+
+/* Анимации */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Корзина (плавающая кнопка) */
+.cart-fab {
+  @apply fixed bottom-6 right-6 bg-tg-button text-tg-button-text rounded-full shadow-lg z-50 transition-all active:scale-90;
+}

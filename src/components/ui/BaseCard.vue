@@ -1,51 +1,36 @@
 <template>
-  <va-card
-    class="base-card"
-    :class="{ 'base-card--clickable': clickable }"
-    :color="color"
-    :stripe="stripe"
-    :stripe-color="stripeColor"
+  <div
+    :class="cardClasses"
     @click="handleClick"
   >
-    <va-card-block v-if="$slots.header" class="base-card__header">
+    <div v-if="$slots.header" class="px-4 pt-4">
       <slot name="header" />
-    </va-card-block>
+    </div>
 
-    <va-card-block v-if="image" class="base-card__image">
+    <div v-if="image" class="overflow-hidden">
       <img 
         :src="image" 
         :alt="imageAlt || 'Card image'"
-        class="base-card__img"
+        class="w-full h-48 object-cover"
         loading="lazy"
       >
-    </va-card-block>
+    </div>
 
-    <va-card-content class="base-card__content">
+    <div class="p-4">
       <slot />
-    </va-card-content>
+    </div>
 
-    <va-card-actions v-if="$slots.actions" class="base-card__actions">
+    <div v-if="$slots.actions" class="px-4 pb-4">
       <slot name="actions" />
-    </va-card-actions>
-  </va-card>
+    </div>
+  </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { hapticFeedback } from '@/utils/telegram'
 
-defineProps({
-  color: {
-    type: String,
-    default: 'backgroundPrimary'
-  },
-  stripe: {
-    type: Boolean,
-    default: false
-  },
-  stripeColor: {
-    type: String,
-    default: 'primary'
-  },
+const props = defineProps({
   clickable: {
     type: Boolean,
     default: false
@@ -57,58 +42,41 @@ defineProps({
   imageAlt: {
     type: String,
     default: undefined
+  },
+  shadow: {
+    type: String,
+    default: 'sm' // none, sm, md, lg
   }
 })
 
 const emit = defineEmits(['click'])
 
+const cardClasses = computed(() => {
+  const baseClasses = 'bg-white rounded-lg border border-gray-200 transition-all duration-200'
+  
+  const shadowClasses = {
+    none: '',
+    sm: 'shadow-sm',
+    md: 'shadow-md',
+    lg: 'shadow-lg'
+  }
+  
+  const clickableClasses = props.clickable 
+    ? 'cursor-pointer hover:shadow-lg hover:-translate-y-1 active:translate-y-0' 
+    : ''
+  
+  return [
+    baseClasses,
+    shadowClasses[props.shadow],
+    clickableClasses
+  ].filter(Boolean).join(' ')
+})
+
 const handleClick = (event) => {
-  if (event.currentTarget.classList.contains('base-card--clickable')) {
+  if (props.clickable) {
     hapticFeedback('light')
     emit('click', event)
   }
 }
 </script>
 
-<style scoped>
-.base-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.base-card--clickable {
-  cursor: pointer;
-}
-
-.base-card--clickable:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.base-card--clickable:active {
-  transform: translateY(0);
-}
-
-.base-card__header {
-  padding: 16px 16px 0;
-}
-
-.base-card__image {
-  padding: 0;
-  overflow: hidden;
-}
-
-.base-card__img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  display: block;
-}
-
-.base-card__content {
-  padding: 16px;
-}
-
-.base-card__actions {
-  padding: 0 16px 16px;
-}
-</style>

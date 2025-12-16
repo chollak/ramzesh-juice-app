@@ -1,5 +1,5 @@
 <template>
-  <va-app class="app" :style="{ backgroundColor: '#ffffff' }">
+  <div class="app bg-white min-h-screen pb-20">
     <router-view v-slot="{ Component }">
       <transition name="page" mode="out-in">
         <component :is="Component" />
@@ -8,7 +8,7 @@
     
     <!-- Global FAB for cart -->
     <CartFab />
-  </va-app>
+  </div>
 </template>
 
 <script setup>
@@ -39,12 +39,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.app {
-  min-height: 100vh;
-  background-color: #ffffff !important;
-  padding-bottom: 80px;
-}
-
 /* Анимации переходов между страницами */
 .page-enter-active,
 .page-leave-active {

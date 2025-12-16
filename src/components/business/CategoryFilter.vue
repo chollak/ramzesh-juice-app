@@ -1,25 +1,33 @@
 <template>
-  <div class="category-filter">
-    <div class="category-filter__container">
-      <va-chip
-        :color="selectedCategory === null ? 'primary' : 'secondary'"
-        size="large"
-        class="category-filter__chip"
+  <div class="sticky top-0 z-10 bg-white border-b border-gray-200 p-4">
+    <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      <button
+        :class="[
+          'flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200',
+          'hover:-translate-y-0.5 active:translate-y-0',
+          selectedCategory === null 
+            ? 'bg-blue-600 text-white' 
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        ]"
         @click="selectCategory(null)"
       >
         Все
-      </va-chip>
+      </button>
       
-      <va-chip
+      <button
         v-for="category in categories"
         :key="category.id"
-        :color="selectedCategory === category.id ? 'primary' : 'secondary'"
-        size="large"
-        class="category-filter__chip"
+        :class="[
+          'flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200',
+          'hover:-translate-y-0.5 active:translate-y-0',
+          selectedCategory === category.id 
+            ? 'bg-blue-600 text-white' 
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        ]"
         @click="selectCategory(category.id)"
       >
         {{ category.name }}
-      </va-chip>
+      </button>
     </div>
   </div>
 </template>
@@ -47,39 +55,12 @@ const selectCategory = (categoryId) => {
 </script>
 
 <style scoped>
-.category-filter {
-  padding: 16px;
-  background: white;
-  border-bottom: 1px solid var(--va-background-secondary);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.category-filter__container {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
+.scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding-bottom: 4px;
 }
 
-.category-filter__container::-webkit-scrollbar {
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
-}
-
-.category-filter__chip {
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.category-filter__chip:hover {
-  transform: translateY(-1px);
-}
-
-.category-filter__chip:active {
-  transform: translateY(0);
 }
 </style>

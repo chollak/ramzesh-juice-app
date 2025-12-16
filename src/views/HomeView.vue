@@ -1,5 +1,5 @@
 <template>
-  <div class="home-view">
+  <div class="min-h-screen bg-white">
     <!-- Заголовок -->
     <AppHeader
       title="Натуральные соки"
@@ -14,49 +14,53 @@
     />
 
     <!-- Контент -->
-    <div class="home-view__content">
+    <div>
       <!-- Загрузка -->
       <LoadingSpinner
         v-if="loading"
         text="Загружаем меню..."
-        :size="50"
+        size="medium"
       />
 
       <!-- Ошибка -->
-      <va-alert
-        v-else-if="error"
-        color="danger"
-        border="left"
-        class="home-view__error"
-      >
-        <template #title>Ошибка загрузки</template>
-        {{ error }}
-        <template #action>
-          <BaseButton
-            size="small"
-            color="danger"
-            preset="outline"
-            @click="retryLoad"
-          >
-            Повторить
-          </BaseButton>
-        </template>
-      </va-alert>
+      <div v-else-if="error" class="bg-red-50 border-l-4 border-red-400 p-4 mx-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3 flex-1">
+            <h3 class="text-sm font-medium text-red-800">Ошибка загрузки</h3>
+            <div class="mt-1 text-sm text-red-700">{{ error }}</div>
+            <div class="mt-3">
+              <BaseButton
+                variant="outline" 
+                size="small"
+                @click="retryLoad"
+              >
+                Повторить
+              </BaseButton>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Пустой список -->
-      <div v-else-if="filteredJuices.length === 0" class="home-view__empty">
-        <va-icon name="local_drink" size="4rem" color="secondary" />
-        <h3>Соки не найдены</h3>
-        <p>Попробуйте выбрать другую категорию</p>
+      <div v-else-if="filteredJuices.length === 0" class="flex flex-col items-center justify-center py-16 px-5 text-center">
+        <svg class="w-16 h-16 text-gray-400 mb-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M7 18c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Соки не найдены</h3>
+        <p class="text-gray-600">Попробуйте выбрать другую категорию</p>
       </div>
       
       <!-- Список соков -->
-      <div v-else class="home-view__products">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         <ProductCard
           v-for="juice in filteredJuices"
           :key="juice.id"
           :product="juice"
-          class="slide-up"
           @click="showJuiceDetails"
         />
       </div>
@@ -101,63 +105,3 @@ const retryLoad = async () => {
 }
 </script>
 
-<style scoped>
-.home-view {
-  min-height: 100vh;
-  background-color: #ffffff;
-}
-
-.home-view__content {
-  padding: 16px;
-}
-
-.home-view__error {
-  margin: 16px;
-}
-
-.home-view__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  text-align: center;
-}
-
-.home-view__empty h3 {
-  margin: 16px 0 8px;
-  font-size: 18px;
-  color: var(--va-text-primary);
-}
-
-.home-view__empty p {
-  margin: 0;
-  color: var(--va-text-secondary);
-}
-
-.home-view__products {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-  .home-view__products {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-}
-
-/* Анимации появления карточек */
-.slide-up {
-  animation-delay: calc(var(--index, 0) * 0.1s);
-}
-
-.home-view__products .slide-up:nth-child(1) { --index: 1; }
-.home-view__products .slide-up:nth-child(2) { --index: 2; }
-.home-view__products .slide-up:nth-child(3) { --index: 3; }
-.home-view__products .slide-up:nth-child(4) { --index: 4; }
-.home-view__products .slide-up:nth-child(5) { --index: 5; }
-.home-view__products .slide-up:nth-child(6) { --index: 6; }
-</style>

@@ -17,8 +17,7 @@
     "pinia": "^2.1.7",
     "telegraf": "^4.15.6",
     "vue": "^3.4.15",
-    "vue-router": "^4.2.5",
-    "vuestic-ui": "^1.10.3"
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.3",

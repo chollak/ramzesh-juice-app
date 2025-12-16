@@ -1,26 +1,28 @@
 <template>
   <Teleport to="body">
     <Transition name="cart-fab" appear>
-      <va-button
+      <button
         v-if="!isEmpty"
-        color="primary"
-        round
-        size="large"
-        class="cart-fab"
+        class="fixed bottom-6 right-6 z-50 bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center justify-center p-3 min-w-[72px]"
         @click="goToCart"
       >
-        <div class="cart-fab__content">
-          <va-icon name="shopping_cart" class="cart-fab__icon" />
-          <va-badge
-            :text="cartCount"
-            color="warning"
-            class="cart-fab__badge"
-          />
+        <div class="relative flex items-center justify-center mb-1">
+          <!-- Иконка корзины -->
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z"/>
+          </svg>
+          
+          <!-- Бейдж с количеством -->
+          <div class="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+            {{ cartCount }}
+          </div>
         </div>
-        <div class="cart-fab__total">
+        
+        <!-- Общая сумма -->
+        <div class="text-xs font-semibold whitespace-nowrap">
           {{ formatPrice(cartTotal) }}
         </div>
-      </va-button>
+      </button>
     </Transition>
   </Teleport>
 </template>
@@ -45,43 +47,7 @@ const goToCart = () => {
 </script>
 
 <style scoped>
-.cart-fab {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 1000;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  min-width: auto;
-  height: auto;
-  padding: 12px 16px;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.cart-fab__content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-}
-
-.cart-fab__icon {
-  font-size: 20px;
-}
-
-.cart-fab__badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-}
-
-.cart-fab__total {
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-/* Анимации */
+/* Анимации появления/исчезновения */
 .cart-fab-enter-active,
 .cart-fab-leave-active {
   transition: all 0.3s ease;
@@ -97,10 +63,11 @@ const goToCart = () => {
   transform: translateY(20px) scale(0.8);
 }
 
+/* Адаптивность для мобильных */
 @media (max-width: 640px) {
-  .cart-fab {
-    bottom: 16px;
-    right: 16px;
+  button[class*="fixed"] {
+    bottom: 16px !important;
+    right: 16px !important;
   }
 }
 </style>

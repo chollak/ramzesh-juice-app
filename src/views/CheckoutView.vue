@@ -14,37 +14,46 @@
           <h3 class="section-title">Контактные данные</h3>
         </template>
 
-        <div v-if="userContact.phone_number" class="contact-info">
-          <div class="contact-info__item">
-            <va-icon name="person" color="primary" />
+        <div v-if="userContact.phone_number" class="space-y-3">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
             <span>{{ userContact.first_name }} {{ userContact.last_name }}</span>
           </div>
-          <div class="contact-info__item">
-            <va-icon name="phone" color="primary" />
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+            </svg>
             <span>{{ userContact.phone_number }}</span>
           </div>
         </div>
 
         <BaseButton
           v-else
-          color="primary"
           size="large"
           block
           :loading="requestingContact"
           @click="requestUserContact"
         >
-          <va-icon name="share" class="mr-2" />
+          <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+          </svg>
           Поделиться контактом
         </BaseButton>
 
-        <va-alert
-          v-if="!userContact.phone_number"
-          color="info"
-          border="left"
-          class="mt-3"
-        >
-          Для оформления заказа нужен ваш номер телефона
-        </va-alert>
+        <div v-if="!userContact.phone_number" class="mt-3 bg-blue-50 border-l-4 border-blue-400 p-3">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-blue-700">Для оформления заказа нужен ваш номер телефона</p>
+            </div>
+          </div>
+        </div>
       </BaseCard>
 
       <!-- Комментарий к заказу -->
@@ -53,12 +62,12 @@
           <h3 class="section-title">Комментарий к заказу</h3>
         </template>
 
-        <va-textarea
+        <textarea
           v-model="form.comment"
           placeholder="Дополнительные пожелания (необязательно)"
-          :rows="3"
-          autosize
-        />
+          rows="3"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+        ></textarea>
       </BaseCard>
 
       <!-- Способ оплаты -->
@@ -67,18 +76,26 @@
           <h3 class="section-title">Способ оплаты</h3>
         </template>
 
-        <va-radio
-          v-model="form.paymentMethod"
-          option="cash"
-          label="Наличные при получении"
-          class="payment-option"
-        />
-        <va-radio
-          v-model="form.paymentMethod"
-          option="card"
-          label="Картой при получении"
-          class="payment-option"
-        />
+        <div class="space-y-3">
+          <label class="flex items-center">
+            <input 
+              type="radio" 
+              v-model="form.paymentMethod" 
+              value="cash"
+              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+            />
+            <span class="ml-2">Наличные при получении</span>
+          </label>
+          <label class="flex items-center">
+            <input 
+              type="radio" 
+              v-model="form.paymentMethod" 
+              value="card"
+              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+            />
+            <span class="ml-2">Картой при получении</span>
+          </label>
+        </div>
       </BaseCard>
 
       <!-- Итого -->
@@ -92,7 +109,7 @@
             <span>Товаров:</span>
             <span>{{ cartCount }}</span>
           </div>
-          <va-divider />
+          <hr class="my-3 border-gray-200" />
           <div class="order-summary__row order-summary__total">
             <span>Итого:</span>
             <span>{{ formatPrice(cartTotal) }}</span>
@@ -117,14 +134,18 @@
         </template>
       </BaseButton>
 
-      <va-alert
-        v-if="!userContact.phone_number"
-        color="warning"
-        border="left"
-        class="mt-3"
-      >
-        Сначала поделитесь контактом выше ☝️
-      </va-alert>
+      <div v-if="!userContact.phone_number" class="mt-3 bg-yellow-50 border-l-4 border-yellow-400 p-3">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-yellow-700">Сначала поделитесь контактом выше ☝️</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

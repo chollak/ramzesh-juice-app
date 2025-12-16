@@ -1,23 +1,25 @@
 <template>
-  <header class="app-header">
-    <div class="app-header__content">
-      <div v-if="showBack" class="app-header__back">
-        <BaseButton
-          preset="plain"
-          color="primary"
-          size="small"
-          @click="goBack"
-        >
-          <va-icon name="arrow_back" />
-        </BaseButton>
+  <header class="sticky top-0 z-50 bg-white border-b border-gray-200">
+    <div class="flex items-center p-4 min-h-[60px]">
+      <!-- Кнопка назад -->
+      <button 
+        v-if="showBack" 
+        class="mr-3 p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+        @click="goBack"
+      >
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.42-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </button>
+      
+      <!-- Заголовок -->
+      <div class="flex-1">
+        <h1 class="text-xl font-semibold text-gray-900 leading-tight">{{ title }}</h1>
+        <p v-if="subtitle" class="text-sm text-gray-600 leading-tight">{{ subtitle }}</p>
       </div>
       
-      <div class="app-header__title">
-        <h1>{{ title }}</h1>
-        <p v-if="subtitle" class="app-header__subtitle">{{ subtitle }}</p>
-      </div>
-      
-      <div class="app-header__actions">
+      <!-- Дополнительные действия -->
+      <div v-if="$slots.actions" class="ml-3">
         <slot name="actions" />
       </div>
     </div>
@@ -26,7 +28,6 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import BaseButton from '@/components/ui/BaseButton.vue'
 import { hapticFeedback } from '@/utils/telegram'
 
 defineProps({
@@ -52,45 +53,3 @@ const goBack = () => {
 }
 </script>
 
-<style scoped>
-.app-header {
-  background: white;
-  border-bottom: 1px solid var(--va-background-secondary);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.app-header__content {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  min-height: 60px;
-}
-
-.app-header__back {
-  margin-right: 12px;
-}
-
-.app-header__title {
-  flex: 1;
-}
-
-.app-header__title h1 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.app-header__subtitle {
-  margin: 0;
-  font-size: 14px;
-  color: var(--va-text-secondary);
-  line-height: 1.2;
-}
-
-.app-header__actions {
-  margin-left: 12px;
-}
-</style>

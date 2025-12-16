@@ -170,7 +170,7 @@ export const api = {
           )
         )
       `)
-      .eq('user_id', userId)
+      .eq('telegram_user_id', userId)
       .order('created_at', { ascending: false })
     
     if (error) throw error

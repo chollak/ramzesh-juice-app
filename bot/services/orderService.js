@@ -12,17 +12,6 @@ export class OrderService {
    */
   async getUserOrders(telegramId, limit = 10) {
     try {
-      // Сначала получаем ID пользователя
-      const { data: user } = await this.supabase
-        .from('users')
-        .select('id')
-        .eq('telegram_id', telegramId)
-        .single()
-
-      if (!user) {
-        return []
-      }
-
       const { data: orders, error } = await this.supabase
         .from('orders')
         .select(`
@@ -33,7 +22,7 @@ export class OrderService {
             price
           )
         `)
-        .eq('user_id', user.id)
+        .eq('telegram_user_id', telegramId)
         .order('created_at', { ascending: false })
         .limit(limit)
 
@@ -89,11 +78,6 @@ export class OrderService {
             quantity,
             juice_name,
             price
-          ),
-          users (
-            telegram_id,
-            first_name,
-            username
           )
         `)
         .eq('order_number', orderNumber)

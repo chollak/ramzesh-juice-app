@@ -188,7 +188,7 @@ export const handleOrderSearch = (supabase) => {
       }
 
       // Проверяем, принадлежит ли заказ пользователю
-      if (order.users?.telegram_id !== ctx.from.id) {
+      if (order.telegram_user_id !== ctx.from.id) {
         await ctx.reply('❌ Заказ не найден.')
         return
       }
